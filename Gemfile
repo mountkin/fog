@@ -8,3 +8,4 @@ group :development, :test do
 end
 
 gemspec
+gem 'fog-core', git: 'git@github.com:fog/fog-core.git'
