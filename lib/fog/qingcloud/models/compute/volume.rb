@@ -32,7 +32,7 @@ module Fog
         end
 
         def ready?
-          state == 'available'
+          state == 'available' and transition_status == ''
         end
 
         def save
@@ -41,7 +41,7 @@ module Fog
           else
             requires :size
             self.id = service.create_volumes(zone, size, 'name' => name).body['volumes'].first
-            wait_for {ready?}
+            wait_for { ready? }
             if @server
               self.server = @server
             end
