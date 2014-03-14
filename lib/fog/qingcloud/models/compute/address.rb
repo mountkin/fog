@@ -42,7 +42,7 @@ module Fog
         end
 
         def ready?
-          state == 'available'
+          state == 'available' and transition_status == ''
         end
 
         def server

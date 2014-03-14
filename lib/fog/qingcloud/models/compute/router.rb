@@ -42,7 +42,7 @@ module Fog
         end
 
         def ready?
-          state == 'active'
+          state == 'active' and transition_status == ''
         end
 
         def eip=(ip)
