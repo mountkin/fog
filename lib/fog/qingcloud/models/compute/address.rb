@@ -15,6 +15,7 @@ module Fog
         attribute :bandwidth
         attribute :state,                       :aliases => 'status'
         attribute :need_icp
+        attribute :transition_status
 
         def initialize(attributes = {})
           # assign server first to prevent race condition with persisted?

@@ -22,6 +22,7 @@ module Fog
         attribute :security_group
         attribute :zone
         attribute :last_modified, :alias => 'status_time'
+        attribute :transition_status
       
         # Used to store the NIC information of the described instance.
         attribute :vxnets
