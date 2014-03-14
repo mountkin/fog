@@ -26,7 +26,9 @@ module Fog
 
         def destroy
           requires :id
-
+          if ['creating', 'detaching'].include?(transition_status)
+            wait_for { ready? }
+          end
           service.delete_volumes(id)
           true
         end
