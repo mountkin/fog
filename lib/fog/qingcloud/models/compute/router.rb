@@ -30,7 +30,7 @@ module Fog
             modify_attributes(name, description)
           else
             self.id = service.create_routers(name, 1, security_group_id).body['routers'].first
-            wait_for(60, 3) {ready?}
+            wait_for {ready?}
           end
           true
         end
@@ -90,7 +90,7 @@ module Fog
         def poweroff
           if persisted?
             service.routers_power(id, 'off')
-            wait_for(60, 2) {state == 'poweroffed'}
+            wait_for {state == 'poweroffed'}
           end
           true
         end
@@ -99,7 +99,7 @@ module Fog
         def poweron
           if persisted?
             service.routers_power(id, 'on')
-            wait_for(60, lambda {|times| times < 8 ? 9 - times : 1}) {ready?}
+            wait_for {ready?}
           end
           true
         end
@@ -130,7 +130,7 @@ module Fog
           requires :id
           service.add_router_statics(id, Fog::Compute::QingCloud::RouterRule.to_query([*rules]))
           service.update_routers(id)
-          wait_for(60, lambda {|times| times < 8 ? 9 - times : 1}) {ready?}
+          wait_for {ready?}
           true
         end
         alias_method :add_rule, :add_rules
@@ -141,7 +141,7 @@ module Fog
           requires :id
           service.delete_router_statics([*rule_id])
           service.update_routers(id)
-          wait_for(60, lambda {|times| times < 8 ? 9 - times : 1}) {ready?}
+          wait_for {ready?}
           true
         end
         alias_method :delete_rule, :delete_rules
