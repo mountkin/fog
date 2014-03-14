@@ -29,6 +29,14 @@ module Fog
           EOS
         end
       end
+
+      def wait_for(&block)
+        options = {
+          max_retries: 20,
+          wait_policy: lambda { |retries| retries < 8 ? 9 - retries : 1 }
+        }
+        super(options, &block)
+      end
     end
   end
 end
