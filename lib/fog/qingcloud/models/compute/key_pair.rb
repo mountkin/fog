@@ -31,6 +31,7 @@ module Fog
             data = if public_key
               service.create_key_pair(name, 'user', 'ignore', public_key).body
             else
+              encrypt_method ||= 'ssh-rsa'
               service.create_key_pair(name, 'system', encrypt_method, 'ignore').body
             end
             merge_attributes('keypair_id' => data['keypair_id'], 'private_key' => data['private_key'])
