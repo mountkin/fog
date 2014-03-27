@@ -82,11 +82,12 @@ module Fog
           true
         end
 
-        def bandwidth=(bw)
+        def change_bandwidth(bw)
           if persisted?
             service.change_address_bandwidth(id, bw)
+          else
+            bandwidth = bw
           end
-          super
         end
 
         private

@@ -187,6 +187,11 @@ module Fog
           vxnets.map {|x| OpenStruct.new(x)}
         end
 
+        def mac_addresses
+          requires :id
+          nics.map { |x| x.nic_id }
+        end
+
         def private_ips
           requires :id
           nics.map{|x| x.private_ip}
