@@ -67,7 +67,7 @@ module Fog
         private
 
         def attach(new_server)
-          if !persisted?
+          unless persisted?
             @server = new_server
             self.zone = new_server.zone
           elsif new_server
@@ -80,10 +80,11 @@ module Fog
         end
 
         def detach(force = false)
-          @server = nil
-          self.server_id = nil
-          if persisted?
-            service.detach_volumes(server.id, id)
+          unless persisted?
+            @server = nil
+            server_id = nil
+          else
+            service.detach_volumes(server_id, id)
             reload
           end
         end
