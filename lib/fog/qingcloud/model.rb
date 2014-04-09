@@ -23,7 +23,7 @@ module Fog
               requires :id
               raise Fog::QingCloud::Errors::CommonClientError, "name or description must be specified" unless name || description
               service.modify_resource_attributes(id, '#{resource_type}', name, description)
-              merge_attributes('keypair_name' => name, 'description' => description)
+              merge_attributes('#{resource_type}_name' => name, 'description' => description)
               true
             end
           EOS
