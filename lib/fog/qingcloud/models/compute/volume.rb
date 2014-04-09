@@ -71,10 +71,14 @@ module Fog
             @server = new_server
             self.zone = new_server.zone
           elsif new_server
+            if state == 'in-use'
+              raise Fog::QingCloud::Errors::PermissionDenied, "The disk is already attached to instance #{server_id}"
+            end
+
             wait_for { ready? }
             @server = nil
             self.server_id = new_server.id
-            service.attach_volumes(server_id, id)
+            service.attach_volumes(self.server_id, id)
             reload
           end
         end
@@ -82,9 +86,9 @@ module Fog
         def detach(force = false)
           if !persisted?
             @server = nil
-            server_id = nil
-          elsif server_id
-            service.detach_volumes(server_id, id)
+            self.server_id = nil
+          elsif self.server_id
+            service.detach_volumes(self.server_id, id)
             reload
           end
         end
