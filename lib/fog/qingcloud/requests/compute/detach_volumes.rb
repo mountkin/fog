@@ -8,11 +8,11 @@ module Fog
         #
         # {API Reference}[https://docs.qingcloud.com/api/volume/detach_volumes.html]
         def detach_volumes(server_id, volume_id)
-          request(
+          args = {
             'action'   => 'DetachVolumes',
-            'volumes'  => [*volume_id],
-            'instance' => server_id
-          )
+            'instance'    => server_id
+          }.merge Fog::QingCloud.indexed_param('volumes', volume_id)
+          request(args)
         end
 
       end

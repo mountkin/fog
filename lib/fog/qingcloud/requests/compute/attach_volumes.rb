@@ -6,12 +6,12 @@ module Fog
 
         # Attach an  EBS volume with a running instance, exposing as specified device
         # {API Reference}[https://docs.qingcloud.com/api/volume/attach_volumes.html]
-        def attach_volumes(instance_id, volume_id)
-          request(
+        def attach_volumes(server_id, volume_id)
+          args = {
             'action'      => 'AttachVolumes',
-            'volumes'     => [*volume_id],
-            'instance'    => instance_id,
-          )
+            'instance'    => server_id
+          }.merge Fog::QingCloud.indexed_param('volumes', volume_id)
+          request(args)
         end
 
       end
