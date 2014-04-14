@@ -105,13 +105,6 @@ module Fog
         end
         alias_method :start, :poweron
 
-        # Vxnets connected to this router
-        def subnets
-          requires :id
-          data = service.describe_router_vxnets(id).body['router_vxnet_set']
-          data.map { |net| Fog::Compute::QingCloud::Subnet.new(net) }
-        end
-
         def rules(rule_ids = [], type = nil)
           requires :id
           json = service.describe_router_statics(id, rule_ids, type).body['router_static_set']

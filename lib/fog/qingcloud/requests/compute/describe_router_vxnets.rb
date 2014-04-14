@@ -5,16 +5,17 @@ module Fog
 
         # Describe all or specified routers
         # {API Reference}[https://docs.qingcloud.com/api/router/describe_router_vxnets.html]
-        def describe_router_vxnets(router_id, options = {})
+        def describe_router_vxnets(router_id, vxnet_id)
           request({
             'action' => 'DescribeRouterVxnets',
-            'router' => router_id
-          }.merge!(options))
+            'router' => router_id,
+            'vxnet'  => vxnet_id
+          })
         end
       end
 
       class Mock
-        def describe_router_vxnets(roter_id, options = {})
+        def describe_router_vxnets(router_id, vxnet_id)
         end
       end
     end
