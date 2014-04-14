@@ -16,7 +16,6 @@ module Fog
       model       :volume
       collection  :volumes
       model       :vxnet
-      model       :subnet
       collection  :vxnets
       model       :router
       collection  :routers

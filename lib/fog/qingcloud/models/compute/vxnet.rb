@@ -68,7 +68,9 @@ module Fog
         
         def servers
           requires :id
-          Fog::Compute::QingCloud::Subnet.new('id' => id).servers
+          vxnet_instances = service.describe_vxnet_instances(id).body['instance_set']
+          instance_ids = vxnet_instances.map { |i| i['instance_id'] }
+          service.servers.all('instance-id' => instance_ids)
         end
         
         # The following attributes are available if the vxnet is connected to a router.
