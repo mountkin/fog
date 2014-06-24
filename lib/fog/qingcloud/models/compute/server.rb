@@ -9,7 +9,6 @@ module Fog
         extend Fog::Deprecation
         identity  :id,           :aliases => 'instance_id'
 
-        attr_accessor :architecture
         attribute :name,         :aliases => 'instance_name'
         attribute :description
         attribute :flavor_id,    :aliases => 'instance_type'

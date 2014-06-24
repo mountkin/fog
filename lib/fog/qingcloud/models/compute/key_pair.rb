@@ -16,8 +16,6 @@ module Fog
         attribute :created_at,   :aliases => 'create_time'
         attribute :public_key,   :aliases => 'pub_key'
 
-        attr_accessor :public_key
-
         def destroy
           requires :id
           service.delete_key_pairs(id)

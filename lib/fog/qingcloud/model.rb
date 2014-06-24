@@ -31,11 +31,9 @@ module Fog
       end
 
       def wait_for(&block)
-        options = {
-          max_retries: 20,
-          wait_policy: lambda { |retries| retries < 8 ? 9 - retries : 1 }
-        }
-        super(options, &block)
+        wait_policy = lambda { |retries| retries < 8 ? 9 - retries : 1 }
+        timeout = 80
+        super(timeout, wait_policy, &block)
       end
     end
   end

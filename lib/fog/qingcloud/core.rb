@@ -61,15 +61,6 @@ module Fog
     end
 
     def self.escape(string)
-      unless @unf_loaded_or_warned
-        begin
-          require('unf/normalizer')
-        rescue LoadError
-          Fog::Logger.warning("Unable to load the 'unf' gem. Your QingCloud strings may not be properly encoded.")
-        end
-        @unf_loaded_or_warned = true
-      end
-      string = defined?(::UNF::Normalizer) ? ::UNF::Normalizer.normalize(string, :nfc) : string
       string.gsub(/([^a-zA-Z0-9_.\-~]+)/) {
         "%" + $1.unpack("H2" * $1.bytesize).join("%").upcase
       }
