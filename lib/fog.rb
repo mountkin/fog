@@ -62,4 +62,4 @@ require 'fog/zerigo'
 require 'fog/cloudsigma'
 require 'fog/openvz'
 require 'fog/qingcloud'
-
+require 'fog/opennebula'

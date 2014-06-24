@@ -4,7 +4,6 @@ require "rake/tasklib"
 module Fog
   module Rake
     class ChangelogTask < ::Rake::TaskLib
-
       def initialize
         desc "Update the changelog since the last release"
         task(:changelog) do
@@ -99,13 +98,14 @@ Watchers      | #{watchers}
       def committers_sorted_by_commits
         committer_pairs = @committers.to_a.sort {|x,y| y[1] <=> x[1]}
         committer_pairs.reject! {|pair| pair.last < 1 }
-        committer_pairs.collect {|pair| pair.first }
+        committer_pairs.map {|pair| pair.first }
       end
 
-      def mvp_eligible?(committer)
+      def former_mvp?(committer)
          [
            'Aaron Suggs',
            'Ash Wilson',
+           'Benson Kalahar',
            'Brian Hartsock',
            'Chris Roberts',
            'Christopher Oliver',
@@ -139,7 +139,7 @@ Watchers      | #{watchers}
       def mvp
         return @mvp if @mvp
         committers_sorted_by_commits.each do |committer|
-          if mvp_eligible?(committer)
+          unless former_mvp?(committer)
             @mvp = committer
             return @mvp
           end
@@ -205,7 +205,6 @@ Watchers      | #{watchers}
       def timestamp
         @time ||= Time.now.utc.strftime('%m/%d/%Y')
       end
-
     end
   end
 end

@@ -3,7 +3,6 @@ require 'fog/openstack/core'
 module Fog
   module Compute
     class OpenStack < Fog::Service
-
       requires :openstack_auth_url
       recognizes :openstack_auth_token, :openstack_management_url,
                  :persistent, :openstack_service_type, :openstack_service_name,
@@ -170,7 +169,6 @@ module Fog
       request :list_hosts
       request :get_host_details
 
-
       class Mock
         attr_reader :auth_token
         attr_reader :auth_token_expiration
@@ -320,7 +318,7 @@ module Fog
           authenticate
 
           @persistent = options[:persistent] || false
-          @connection = Fog::XML::Connection.new("#{@scheme}://#{@host}:#{@port}", @persistent, @connection_options)
+          @connection = Fog::Core::Connection.new("#{@scheme}://#{@host}:#{@port}", @persistent, @connection_options)
         end
 
         def credentials
@@ -422,14 +420,13 @@ module Fog
 
           # Not all implementations have identity service in the catalog
           if @openstack_identity_public_endpoint || @openstack_management_url
-            @identity_connection = Fog::XML::Connection.new(
+            @identity_connection = Fog::Core::Connection.new(
               @openstack_identity_public_endpoint || @openstack_management_url,
               false, @connection_options)
           end
 
           true
         end
-
       end
     end
   end

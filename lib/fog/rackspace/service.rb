@@ -1,7 +1,6 @@
 module Fog
   module Rackspace
     class Service
-
       def service_name
         raise Fog::Errors::NotImplemented.new("Please implement the #service_name method")
       end
@@ -102,7 +101,7 @@ module Fog
       end
 
       def v2_authentication?
-        @rackspace_auth_url.nil? || @rackspace_auth_url =~ /v2(\.\d)?\w*$/
+        @rackspace_auth_url.nil? || @rackspace_auth_url =~ /v2(\.\d)?[\w\/]*$/
       end
 
       def authenticate_v2(identity_options)
@@ -138,7 +137,6 @@ module Fog
 
         selected
       end
-
     end
   end
 end

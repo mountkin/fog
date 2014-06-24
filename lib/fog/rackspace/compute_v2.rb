@@ -10,7 +10,6 @@ module Fog
       class BadRequest < Fog::Rackspace::Errors::BadRequest; end
 
       class InvalidStateException < ::RuntimeError
-
         attr_reader :desired_state
         attr_reader :current_state
 
@@ -136,7 +135,7 @@ module Fog
           headers = params[:headers] || {}
 
           response = Excon::Response.new(:body => body, :headers => headers, :status => status)
-          if params.has_key?(:expects) && ![*params[:expects]].include?(response.status)
+          if params.key?(:expects) && ![*params[:expects]].include?(response.status)
             raise(Excon::Errors.status_error(params, response))
           else response
           end
@@ -144,7 +143,6 @@ module Fog
       end
 
       class Real < Fog::Rackspace::Service
-
         def initialize(options = {})
           @rackspace_api_key = options[:rackspace_api_key]
           @rackspace_username = options[:rackspace_username]
@@ -158,7 +156,7 @@ module Fog
           deprecation_warnings(options)
 
           @persistent = options[:persistent] || false
-          @connection = Fog::XML::Connection.new(endpoint_uri.to_s, @persistent, @connection_options)
+          @connection = Fog::Core::Connection.new(endpoint_uri.to_s, @persistent, @connection_options)
         end
 
         def request(params, parse_json = true)
@@ -233,7 +231,7 @@ module Fog
           end
 
           unless options[:rackspace_region]
-            Fog::Logger.deprecation("Default region support will be removed in an upcoming release. Please switch to manually setting your endpoint. This requires settng the :rackspace_region option")
+            Fog::Logger.deprecation("Default region support will be removed in an upcoming release. Please switch to manually setting your endpoint. This requires setting the :rackspace_region option")
           end
         end
 

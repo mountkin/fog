@@ -3,9 +3,7 @@ require 'fog/compute/models/server'
 module Fog
   module Compute
     class Ovirt
-
       class Server < Fog::Compute::Server
-
         # This will be the instance uuid which is globally unique across
         # a oVirt deployment.
         identity :id
@@ -34,6 +32,7 @@ module Fog
         end
 
         def locked?
+          @volumes = nil # force reload volumes
           !!(status =~ /locked/i) || (attributes[:volumes]=nil) || volumes.any?{|v| !!(v.status =~ /locked/i)}
         end
 
@@ -128,9 +127,7 @@ module Fog
         def to_s
           name
         end
-
       end
-
     end
   end
 end

@@ -111,11 +111,15 @@ module Fog
         #              and so on, and enables you to manage the disk configuration.
         attribute :disk_config, :aliases => 'OS-DCF:diskConfig'
 
-
         # @!attribute [rw] config_drive_ext
         # @return [Boolean] whether a read-only configuration drive is attached
         # @see http://docs.rackspace.com/servers/api/v2/cs-devguide/content/config_drive_ext.html
         attribute :config_drive
+
+        # @!attribute [rw] user_data
+        # @return [Boolean] User-data
+        # @see http://docs.rackspace.com/servers/api/v2/cs-devguide/content/config_drive_ext.html
+        attribute :user_data
 
         # @!attribute [r] bandwidth
         # @return [Array] The amount of bandwidth used for the specified audit period.
@@ -155,16 +159,15 @@ module Fog
         # @note The key_pair/key_name is used to specify the keypair used for server creation. It is not populated by cloud servers.
         attribute :key_name
 
-
         def initialize(attributes={})
           @service = attributes[:service]
           super
         end
 
-        alias :access_ipv4_address :ipv4_address
-        alias :access_ipv4_address= :ipv4_address=
-        alias :access_ipv6_address :ipv6_address
-        alias :access_ipv6_address= :ipv6_address=
+        alias_method :access_ipv4_address, :ipv4_address
+        alias_method :access_ipv4_address=, :ipv4_address=
+        alias_method :access_ipv6_address, :ipv6_address
+        alias_method :access_ipv6_address=, :ipv6_address=
 
         # Server metadata
         # @return [Fog::Compute::RackspaceV2::Metadata] metadata key value pairs.
@@ -246,6 +249,7 @@ module Fog
           modified_options[:metadata] = metadata.to_hash unless @metadata.nil?
           modified_options[:personality] = personality unless personality.nil?
           modified_options[:config_drive] = config_drive unless config_drive.nil?
+          modified_options[:user_data] = user_data_encoded unless user_data_encoded.nil?
           modified_options[:key_name] ||= attributes[:key_name]
 
           if modified_options[:networks]
@@ -420,7 +424,6 @@ module Fog
           true
         end
 
-
         # Rebuild removes all data on the server and replaces it with the specified image. The id and all IP addresses remain the same.
         # @param [String] image_id image to use for rebuild
         # @return [Boolean] returns true if rebuild is in process
@@ -548,7 +551,7 @@ module Fog
         # @note Though Rackspace does not enforce complexity requirements for the password, the operating system might. If the password is not complex enough, the server might enter an ERROR state.
         # @see http://docs.rackspace.com/servers/api/v2/cs-devguide/content/Change_Password-d1e3234.html
         #
-        # * Status Transition:	
+        # * Status Transition:
         #   * ACTIVE -> PASSWORD -> ACTIVE
         #   * ACTIVE -> PASSWORD -> ERROR (on error)
         def change_admin_password(password)
@@ -563,6 +566,8 @@ module Fog
         # @see Servers#bootstrap
         def setup(credentials = {})
           requires :ssh_ip_address, :identity, :public_key, :username
+
+          retried_disconnect = false
 
           commands = [
             %{mkdir .ssh},
@@ -579,6 +584,14 @@ module Fog
         rescue Errno::ECONNREFUSED
           sleep(1)
           retry
+        # Ubuntu 12.04 images seem to be disconnecting during the ssh setup process.
+        # This rescue block is an effort to address that issue.
+        rescue Net::SSH::Disconnect
+          unless retried_disconnect
+            retried_disconnect = true
+            sleep(1)
+            retry
+          end
         end
 
         def virtual_interfaces
@@ -593,6 +606,10 @@ module Fog
 
         def password_lock
           "passwd -l #{username}" unless attributes[:no_passwd_lock]
+        end
+
+        def user_data_encoded
+           self.user_data.nil? ? nil : [self.user_data].pack('m')
         end
       end
     end

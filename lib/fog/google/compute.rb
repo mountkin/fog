@@ -3,22 +3,31 @@ require 'fog/google/core'
 module Fog
   module Compute
     class Google < Fog::Service
-
       requires :google_project
-      recognizes :app_name, :app_version, :google_client_email, :google_key_location, :google_client
+      recognizes :app_name, :app_version, :google_client_email, :google_key_location, :google_key_string, :google_client
 
       request_path 'fog/google/requests/compute'
       request :list_servers
+      request :list_aggregated_servers
       request :list_addresses
+      request :list_aggregated_addresses
       request :list_disks
+      request :list_aggregated_disks
       request :list_firewalls
       request :list_images
       request :list_machine_types
+      request :list_aggregated_machine_types
       request :list_networks
       request :list_zones
+      request :list_regions
       request :list_global_operations
+      request :list_region_operations
       request :list_zone_operations
       request :list_snapshots
+      request :list_http_health_checks
+      request :list_target_pools
+      request :list_forwarding_rules
+      request :list_routes
 
       request :get_server
       request :get_address
@@ -28,9 +37,17 @@ module Fog
       request :get_machine_type
       request :get_network
       request :get_zone
+      request :get_region
       request :get_snapshot
       request :get_global_operation
+      request :get_region_operation
       request :get_zone_operation
+      request :get_http_health_check
+      request :get_target_pool
+      request :get_target_pool_health
+      request :get_forwarding_rule
+      request :get_project
+      request :get_route
 
       request :delete_address
       request :delete_disk
@@ -40,7 +57,12 @@ module Fog
       request :delete_network
       request :delete_server
       request :delete_global_operation
+      request :delete_region_operation
       request :delete_zone_operation
+      request :delete_http_health_check
+      request :delete_target_pool
+      request :delete_forwarding_rule
+      request :delete_route
 
       request :insert_address
       request :insert_disk
@@ -49,9 +71,30 @@ module Fog
       request :insert_network
       request :insert_server
       request :insert_snapshot
+      request :insert_http_health_check
+      request :insert_target_pool
+      request :insert_forwarding_rule
+      request :insert_route
 
       request :set_metadata
       request :set_tags
+      request :set_forwarding_rule_target
+
+      request :add_target_pool_instances
+      request :add_target_pool_health_checks
+
+      request :remove_target_pool_instances
+      request :remove_target_pool_health_checks
+      request :set_common_instance_metadata
+
+      request :attach_disk
+      request :detach_disk
+      request :get_server_serial_port_output
+      request :reset_server
+      request :set_server_disk_auto_delete
+      request :set_server_scheduling
+      request :add_server_access_config
+      request :delete_server_access_config
 
       model_path 'fog/google/models/compute'
       model :server
@@ -66,6 +109,9 @@ module Fog
       model :disk
       collection :disks
 
+      model :address
+      collection :addresses
+
       model :operation
       collection :operations
 
@@ -74,6 +120,30 @@ module Fog
 
       model :zone
       collection :zones
+
+      model :region
+      collection :regions
+
+      model :http_health_check
+      collection :http_health_checks
+
+      model :target_pool
+      collection :target_pools
+
+      model :forwarding_rule
+      collection :forwarding_rules
+
+      model :project
+      collection :projects
+
+      model :firewall
+      collection :firewalls
+
+      model :network
+      collection :networks
+
+      model :route
+      collection :routes
 
       module Shared
         attr_reader :project, :api_version
@@ -108,23 +178,6 @@ module Fog
           response
         end
 
-        def backoff_if_unfound(&block)
-          retries_remaining = 10
-          sleep_time = 0.1
-          begin
-            result = block.call
-          rescue Exception => msg
-            if msg.to_s.include? 'was not found' and retries_remaining > 0
-              retries_remaining -= 1
-              sleep sleep_time
-              sleep_time *= 1.6
-              retry
-            else
-              raise msg
-            end
-          end
-          result
-        end
       end
 
       class Mock
@@ -143,61 +196,6 @@ module Fog
         def self.data(api_version)
           @data ||= Hash.new do |hash, key|
             case key
-            when 'google'
-              hash[key] = {
-                :images => {
-                  "centos-6-2-v20120621" => {
-                    "kind" => "compute#image",
-                    "selfLink" => "https://www.googleapis.com/compute/#{api_version}/projects/google/global/images/centos-6-2-v20120621",
-                    "id" => "12920641029336858796",
-                    "creationTimestamp" => "2012-06-21T22:59:56.392-07:00",
-                    "name" => "centos-6-2-v20120621",
-                    "description" => "CentOS 6.2; Created Thu, 21 Jun 2012 14:22:21 +0000",
-                    "sourceType" => "RAW",
-                    "rawDisk" => {
-                      "containerType" => "TAR",
-                      "source" => ""
-                    },
-                    "deprecated" => {
-                      "state" => "DELETED",
-                      "replacement" => "https://www.googleapis.com/compute/#{api_version}/projects/google/global/images/centos-6-v20130104"
-                    },
-                    "status" => "READY"
-                  },
-                  "centos-6-v20120912" => {
-                    "kind" => "compute#image",
-                    "selfLink" => "https://www.googleapis.com/compute/#{api_version}/projects/google/global/images/centos-6-v20120912",
-                    "id" => "12994279803511049620",
-                    "creationTimestamp" => "2012-09-18T08:52:47.584-07:00",
-                    "name" => "centos-6-v20120912",
-                    "description" => "CentOS 6; Created Wed, 12 Sep 2012 00:00:00 +0000",
-                    "sourceType" => "RAW",
-                    "rawDisk" => {
-                      "containerType" => "TAR",
-                      "source" => ""
-                    },
-                    "deprecated" => {
-                      "state" => "DEPRECATED",
-                      "replacement" => "https://www.googleapis.com/compute/#{api_version}/projects/google/global/images/centos-6-v20130104"
-                    },
-                    "status" => "READY"
-                  },
-                  "centos-6-v20121106" => {
-                    "kind" => "compute#image",
-                    "selfLink" => "https://www.googleapis.com/compute/#{api_version}/projects/google/global/images/centos-6-v20121106",
-                    "id" => "13037720516378381209",
-                    "creationTimestamp" => "2012-11-09T11:40:41.079-08:00",
-                    "name" => "centos-6-v20121106",
-                    "description" => "SCSI-enabled CentOS 6; Created Tue, 06 Nov 2012 00:00:00 +0000",
-                    "sourceType" => "RAW",
-                    "rawDisk" => {
-                      "containerType" => "TAR",
-                      "source" => ""
-                    },
-                    "status" => "READY"
-                  }
-                }
-              }
             when 'debian-cloud'
               hash[key] = {
                 :images => {
@@ -243,9 +241,9 @@ module Fog
                     },
                     "status" => "READY"
                   },
-                  "debian-7-wheezy-v20131120" => {
+                  "debian-7-wheezy-v20140408" => {
                     "kind" => "compute#image",
-                    "selfLink" => "https://www.googleapis.com/compute/#{api_version}/projects/debian-cloud/global/images/debian-7-wheezy-v20131120",
+                    "selfLink" => "https://www.googleapis.com/compute/#{api_version}/projects/debian-cloud/global/images/debian-7-wheezy-v20140408",
                     "id" => "17312518942796567788",
                     "creationTimestamp" => "2013-11-25T15:17:00.436-08:00",
                     "name" => "debian-7-wheezy-v20131120",
@@ -846,7 +844,6 @@ module Fog
         attr_reader :compute, :api_url
 
         def initialize(options)
-
           # NOTE: loaded here to avoid requiring this as a core Fog dependency
           begin
             require 'google/api_client'
@@ -861,14 +858,20 @@ module Fog
           end
 
           if @client.nil?
-            if !options[:google_client_email].nil? and !options[:google_key_location].nil?
+            if !options[:google_key_location].nil?
+              google_key = File.expand_path(options[:google_key_location])
+            elsif !options[:google_key_string].nil?
+              google_key = options[:google_key_string]
+            end
+
+            if !options[:google_client_email].nil? and !google_key.nil?
               @client = self.new_pk12_google_client(
                 options[:google_client_email],
-                File.expand_path(options[:google_key_location]),
+                google_key,
                 options[:app_name],
                 options[:app_verion])
             else
-              Fog::Logger.debug("Fog::Compute::Google.client has not been initialized nor are the :google_client_email and :google_key_location options set, so we can not create one for you.")
+              Fog::Logger.debug("Fog::Compute::Google.client has not been initialized nor are the :google_client_email and :google_key_location or :google_key_string options set, so we can not create one for you.")
               raise ArgumentError.new("No Google API Client has been initialized.")
             end
           end
@@ -886,12 +889,12 @@ module Fog
         # Public: Create a Google::APIClient with a pkcs12 key and a user email.
         #
         # google_client_email - an @developer.gserviceaccount.com email address to use.
-        # google_key_location - an absolute location to a pkcs12 key file.
+        # google_key - an absolute location to a pkcs12 key file or the content of the file itself.
         # app_name - an optional string to set as the app name in the user agent.
         # app_version - an optional string to set as the app version in the user agent.
         #
         # Returns a new Google::APIClient
-        def new_pk12_google_client(google_client_email, google_key_location, app_name=nil, app_version=nil)
+        def new_pk12_google_client(google_client_email, google_key, app_name=nil, app_version=nil)
           # The devstorage scope is needed to be able to insert images
           # devstorage.read_only scope is not sufficient like you'd hope
           api_scope_url = 'https://www.googleapis.com/auth/compute https://www.googleapis.com/auth/devstorage.read_write'
@@ -910,7 +913,7 @@ module Fog
           }
           local_client = ::Google::APIClient.new(api_client_options)
 
-          key = ::Google::APIClient::KeyUtils.load_from_pkcs12(google_key_location, 'notasecret')
+          key = ::Google::APIClient::KeyUtils.load_from_pkcs12(google_key, 'notasecret')
 
           local_client.authorization = Signet::OAuth2::Client.new({
             :audience => 'https://accounts.google.com/o/oauth2/token',
@@ -945,12 +948,11 @@ module Fog
         # result = Google::APIClient::Result
         # returns Excon::Response
         def build_response(result)
-          build_excon_response(result.body.nil? ? nil : Fog::JSON.decode(result.body), result.status)
+          build_excon_response(result.body.nil? || result.body.empty? ? nil : Fog::JSON.decode(result.body), result.status)
         end
       end
 
       RUNNING = 'RUNNING'
-
     end
   end
 end

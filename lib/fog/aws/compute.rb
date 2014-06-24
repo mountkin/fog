@@ -120,6 +120,7 @@ module Fog
       request :describe_volumes
       request :describe_volume_status
       request :describe_vpcs
+      request :describe_vpc_attribute
       request :detach_network_interface
       request :detach_internet_gateway
       request :detach_volume
@@ -153,12 +154,15 @@ module Fog
 
       # deprecation
       class Real
-
         def modify_image_attributes(*params)
           Fog::Logger.deprecation("modify_image_attributes is deprecated, use modify_image_attribute instead [light_black](#{caller.first})[/]")
           modify_image_attribute(*params)
         end
 
+        # http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-supported-platforms.html
+        def supported_platforms
+          describe_account_attributes.body["accountAttributeSet"].find{ |h| h["attributeName"] == "supported-platforms" }["values"]
+        end
       end
 
       class Mock
@@ -295,7 +299,7 @@ module Fog
         end
 
         def visible_images
-          images = self.data[:images].values.inject({}) do |h, image|
+          images = self.data[:images].values.reduce({}) do |h, image|
             h.update(image['imageId'] => image)
           end
 
@@ -310,22 +314,33 @@ module Fog
           images
         end
 
-        def ec2_compatibility_mode(enabled=true)
-          values = enabled ? ["EC2", "VPC"] : ["VPC"]
-          self.data[:account_attributes].detect { |h| h["attributeName"] == "supported-platforms" }["values"] = values
+        def supported_platforms
+          describe_account_attributes.body["accountAttributeSet"].find{ |h| h["attributeName"] == "supported-platforms" }["values"]
+        end
+
+        def enable_ec2_classic
+          set_supported_platforms(%w[EC2 VPC])
+        end
+
+        def disable_ec2_classic
+          set_supported_platforms(%w[VPC])
+        end
+
+        def set_supported_platforms(values)
+          self.data[:account_attributes].find { |h| h["attributeName"] == "supported-platforms" }["values"] = values
         end
 
         def apply_tag_filters(resources, filters, resource_id_key)
           tag_set_fetcher = lambda {|resource| self.data[:tag_sets][resource[resource_id_key]] }
 
           # tag-key: match resources tagged with this key (any value)
-          if filters.has_key?('tag-key')
+          if filters.key?('tag-key')
             value = filters.delete('tag-key')
-            resources = resources.select{|r| tag_set_fetcher[r].has_key?(value)}
+            resources = resources.select{|r| tag_set_fetcher[r].key?(value)}
           end
 
           # tag-value: match resources tagged with this value (any key)
-          if filters.has_key?('tag-value')
+          if filters.key?('tag-value')
             value = filters.delete('tag-value')
             resources = resources.select{|r| tag_set_fetcher[r].values.include?(value)}
           end
@@ -382,7 +397,7 @@ module Fog
           @region                 = options[:region] ||= 'us-east-1'
           @instrumentor           = options[:instrumentor]
           @instrumentor_name      = options[:instrumentor_name] || 'fog.aws.compute'
-          @version                = options[:version]     ||  '2013-10-01'
+          @version                = options[:version]     ||  '2014-05-01'
 
           validate_aws_region @region
 
@@ -462,7 +477,6 @@ module Fog
                   Fog::Compute::AWS::Error.slurp(error, "#{match[:code]} => #{match[:message]}")
                 end
         end
-
       end
     end
   end

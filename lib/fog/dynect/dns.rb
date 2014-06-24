@@ -3,7 +3,6 @@ require 'fog/dynect/core'
 module Fog
   module DNS
     class Dynect < Fog::Service
-
       requires :dynect_customer, :dynect_username, :dynect_password
       recognizes :timeout, :persistent
       recognizes :provider # remove post deprecation
@@ -123,7 +122,12 @@ module Fog
           job_location = response.headers['Location']
 
           Fog.wait_for(time_to_wait) do
-            response = request(:expects => original_expects, :method => :get, :path => job_location)
+            response = request(
+              :expects => original_expects,
+              :idempotent => true,
+              :method => :get,
+              :path => job_location
+            )
             response.body['status'] != 'incomplete'
           end
 
@@ -134,7 +138,6 @@ module Fog
           response
         end
       end
-
     end
   end
 end
