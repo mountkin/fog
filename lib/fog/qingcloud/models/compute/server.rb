@@ -5,7 +5,7 @@ module Fog
   module Compute
     class QingCloud
 
-      class Server < Fog::Compute::Server
+      class Server < Fog::QingCloud::Model
         extend Fog::Deprecation
         identity  :id,           :aliases => 'instance_id'
 
