@@ -32,8 +32,7 @@ module Fog
 
       def wait_for(&block)
         wait_policy = lambda { |retries| retries < 8 ? 9 - retries : 1 }
-        timeout = 80
-        super(timeout, wait_policy, &block)
+        super(Fog::QingCloud.wait_timeout, wait_policy, &block)
       end
     end
   end

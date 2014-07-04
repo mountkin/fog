@@ -5,6 +5,14 @@ module Fog
     extend Fog::Provider
     service(:compute,         'Compute')
 
+    def self.wait_timeout
+      @wait_timeout || Fog.timeout
+    end
+
+    def self.wait_timeout=(timeout)
+      @wait_timeout = timeout
+    end
+
     def self.indexed_param(key, values)
       params = {}
       unless key.include?('%d')

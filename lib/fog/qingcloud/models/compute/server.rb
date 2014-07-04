@@ -5,7 +5,7 @@ module Fog
   module Compute
     class QingCloud
 
-      class Server < Fog::QingCloud::Model
+      class Server < Fog::Compute::Server
         extend Fog::Deprecation
         identity  :id,           :aliases => 'instance_id'
 
@@ -194,6 +194,19 @@ module Fog
         def private_ips
           requires :id
           nics.map{|x| x.private_ip}
+        end
+
+        def wait_for(&block)
+          wait_policy = lambda { |retries| retries < 8 ? 9 - retries : 1 }
+          super(Fog::QingCloud.wait_timeout, wait_policy, &block)
+        end
+        
+        def modify_attributes(name, description)
+          requires :id
+          raise Fog::QingCloud::Errors::CommonClientError, "name or description must be specified" unless name || description
+          service.modify_resource_attributes(id, 'instance', name, description)
+          merge_attributes('instance_name' => name, 'description' => description)
+          true
         end
 
       end
