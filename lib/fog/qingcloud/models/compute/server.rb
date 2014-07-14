@@ -1,5 +1,6 @@
 require 'fog/compute/models/server'
 require 'ostruct'
+require 'base64'
 
 module Fog
   module Compute
@@ -22,7 +23,6 @@ module Fog
         attribute :zone
         attribute :last_modified, :alias => 'status_time'
         attribute :transition_status
-        attribute :need_userdata
         attribute :userdata_type
         attribute :userdata_value
       
@@ -95,11 +95,22 @@ module Fog
               'login_mode'        => 'keypair',
               'security_group'    => security_group,
               'instance_name'     => name,
-              'vxnets'            => vxnet_ids,
-              'need_userdata'     => need_userdata,
-              'userdata_type'     => userdata_type,
-              'userdata_value'    => userdata_value
+              'vxnets'            => vxnet_ids
             }
+
+            if userdata_value 
+              if userdata_type == 'plain'
+                options['userdata_value'] = Base64.encode64(userdata_value)
+              elsif userdata_type == 'tar'
+                attachment_id = service.upload_userdata_attachment(
+                  'attachment_content' => Base64.encode64(userdata_value),
+                  'attachment_name' => 'userdata-tar'
+                ).body['attachment_id']
+                options['userdata_value'] = attachment_id
+              end
+              options['need_userdata'] = 1
+              options['userdata_type'] = userdata_type
+            end
 
             self.id = service.run_instances(image_id, 1, options).body['instances'].first
             wait_for {ready?}

@@ -91,6 +91,8 @@ module Fog
       request :delete_key_pairs
       request :attach_key_pairs
       request :detach_key_pairs
+
+      request :upload_userdata_attachment
       
       #request :describe_images
       #request :capture_instance
