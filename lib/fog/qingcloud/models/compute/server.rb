@@ -22,6 +22,9 @@ module Fog
         attribute :zone
         attribute :last_modified, :alias => 'status_time'
         attribute :transition_status
+        attribute :need_userdata
+        attribute :userdata_type
+        attribute :userdata_value
       
         # Used to store the NIC information of the described instance.
         attribute :vxnets
@@ -92,7 +95,10 @@ module Fog
               'login_mode'        => 'keypair',
               'security_group'    => security_group,
               'instance_name'     => name,
-              'vxnets'            => vxnet_ids
+              'vxnets'            => vxnet_ids,
+              'need_userdata'     => need_userdata,
+              'userdata_type'     => userdata_type,
+              'userdata_value'    => userdata_value
             }
 
             self.id = service.run_instances(image_id, 1, options).body['instances'].first
