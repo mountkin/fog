@@ -6,7 +6,7 @@ module Fog
         # Delete a key pair that you own
         # {API Reference}[https://docs.qingcloud.com/api/userdata/upload_userdata_attachment.html]
         def upload_userdata_attachment(options)
-          request(options.merge('action' => 'UploadUserDataAttachment')
+          request(options.merge('action' => 'UploadUserDataAttachment'))
         end
 
       end
