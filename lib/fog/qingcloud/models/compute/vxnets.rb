@@ -33,7 +33,7 @@ module Fog
         # filters={}
         # [
         # vxnet_id=vxnet-someId,
-        # state=[pending|available],
+        # status=[pending|available],
         # vpc_id=vpc-someId
         # cidr_block=someIpRange
         # available_ip_address_count=someInt
@@ -68,7 +68,7 @@ module Fog
         #>> QingCloud.vxnets.get("vxnet-12345678")
         # <Fog::QingCloud::Compute::Vxnet
         # vxnet_id=vxnet-someId,
-        # state=[pending|available],
+        # status=[pending|available],
         # vpc_id=vpc-someId
         # cidr_block=someIpRange
         # available_ip_address_count=someInt

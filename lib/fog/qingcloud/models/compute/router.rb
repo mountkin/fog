@@ -6,7 +6,7 @@ module Fog
     class QingCloud
       class Router < Fog::QingCloud::Model
         identity  :id,               :aliases => 'router_id'
-        attribute :state,             :aliases => 'status'
+        attribute :status
         attribute :is_applied
         attribute :description
         attribute :transition_status
@@ -45,7 +45,7 @@ module Fog
         end
 
         def ready?
-          state == 'active' and transition_status == ''
+          status == 'active' and transition_status == ''
         end
 
         def eip=(ip)
@@ -93,7 +93,7 @@ module Fog
         def poweroff
           if persisted?
             service.routers_power(id, 'off')
-            wait_for {state == 'poweroffed'}
+            wait_for {status == 'poweroffed'}
           end
           true
         end

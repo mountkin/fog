@@ -8,7 +8,7 @@ module Fog
 
         identity :id,                     :aliases => 'image_id'
 
-        attribute :state,                 :aliases => 'status'
+        attribute :status
         attribute :processor_type
         attribute :transition_status
         attribute :recommended_type
@@ -24,7 +24,7 @@ module Fog
         attribute :description
 
         def ready?
-          state == 'available'
+          status == 'available'
         end
 
         def is_public

@@ -66,7 +66,7 @@ module Fog
         #    server_id=nil,
         #    size=10,
         #    snapshot_id=nil,
-        #    state="available",
+        #    status="available",
         #    tags={}
         #  >
         #

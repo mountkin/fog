@@ -12,7 +12,7 @@ module Fog
         attribute :status_time
         attribute :server_id,             :aliases => 'instance_id'
         attribute :size
-        attribute :state,                 :aliases => 'status'
+        attribute :status
         attribute :name,                  :aliases => 'volume_name'
         attribute :description
         attribute :transition_status
@@ -37,7 +37,7 @@ module Fog
         end
 
         def ready?
-          state == 'available' and transition_status == ''
+          status == 'available' and transition_status == ''
         end
 
         def save
@@ -74,7 +74,7 @@ module Fog
             @server = new_server
             self.zone = new_server.zone
           elsif new_server
-            if state == 'in-use'
+            if status == 'in-use'
               raise Fog::QingCloud::Errors::PermissionDenied, "The disk is already attached to instance #{server_id}"
             end
 

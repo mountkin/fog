@@ -15,7 +15,7 @@ module Fog
         attribute :flavor_id,    :aliases => 'instance_type'
         attribute :image_id
         attribute :memory_current
-        attribute :state,        :aliases => 'status'
+        attribute :status
         attribute :vxnet_ids
         attribute :volume_ids
         attribute :keypair_ids
@@ -76,7 +76,7 @@ module Fog
         end
 
         def ready?
-          state == 'running'
+          status == 'running'
         end
 
         def reboot

@@ -13,7 +13,7 @@ module Fog
         attribute :server_id
         attribute :router_id
         attribute :bandwidth
-        attribute :state,                       :aliases => 'status'
+        attribute :status
         attribute :need_icp
         attribute :transition_status
 
@@ -45,7 +45,7 @@ module Fog
         end
 
         def ready?
-          state == 'available' and transition_status == ''
+          status == 'available' and transition_status == ''
         end
 
         def server
