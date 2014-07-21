@@ -55,6 +55,9 @@ module Fog
           requires_one :group_id
           service.delete_security_groups(group_id)
           true
+        rescue Fog::QingCloud::Errors::PermissionDenied => e
+          raise e unless e.message =~ /has already been deleted/i
+          true
         end
 
         # Create a security group

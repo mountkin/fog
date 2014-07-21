@@ -20,6 +20,9 @@ module Fog
           requires :id
           service.delete_key_pairs(id)
           true
+        rescue Fog::QingCloud::Errors::PermissionDenied => e
+          raise e unless e.message =~ /has already been deleted/i
+          true
         end
 
         def save

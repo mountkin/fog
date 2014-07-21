@@ -31,6 +31,9 @@ module Fog
           end
           service.delete_volumes(id)
           true
+        rescue Fog::QingCloud::Errors::PermissionDenied => e
+          raise e unless e.message =~ /has already been deleted/i
+          true
         end
 
         def ready?

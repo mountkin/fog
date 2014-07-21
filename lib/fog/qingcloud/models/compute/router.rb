@@ -39,6 +39,9 @@ module Fog
           requires :id
           service.delete_routers(id)
           true
+        rescue Fog::QingCloud::Errors::PermissionDenied => e
+          raise e unless e.message =~ /has already been deleted/i
+          true
         end
 
         def ready?
