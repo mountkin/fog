@@ -15,6 +15,7 @@ module Fog::Compute
       attribute :val1
       attribute :val2
       attribute :val3
+      attribute :auto_apply
 
       def initialize(attrs = {})
         if attrs['protocol']
@@ -27,6 +28,7 @@ module Fog::Compute
           end
         end
         attrs['val3'] ||= attrs.delete('src_ip')
+        @auto_apply = attrs.delete('auto_apply') || true
 
         super attrs
       end
@@ -40,14 +42,14 @@ module Fog::Compute
           requires :protocol, :priority
           self.id = service.add_security_group_rules(group_id, to_query).body['security_group_rules'].first
         end
-        service.apply_security_group(group_id)
+        service.apply_security_group(group_id) if @auto_apply
         true
       end
 
       def destroy
         requires :id
         service.delete_security_group_rules(id)
-        service.apply_security_group(group_id)
+        service.apply_security_group(group_id) if @auto_apply
         true
       end
 

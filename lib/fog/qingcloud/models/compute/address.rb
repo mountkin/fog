@@ -73,7 +73,7 @@ module Fog
         def save
           requires :bandwidth
           unless persisted?
-            eip_id = service.allocate_address(bandwidth, 1, nil, need_icp).body['eips'].first
+            eip_id = service.allocate_address(bandwidth, 1, name, need_icp).body['eips'].first
             self.id = eip_id
             wait_for {ready?}
             if @server
