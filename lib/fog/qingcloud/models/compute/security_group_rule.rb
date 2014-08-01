@@ -76,7 +76,6 @@ module Fog::Compute
         (val1.to_i .. port_end.to_i)
       end
 
-      private
       def to_range(stuff)
         if stuff.is_a? Range
           [stuff.first, stuff.end]
@@ -89,9 +88,10 @@ module Fog::Compute
         query = ['protocol', 'priority', 'action', 
                  'direction', 'val1', 'val2', 'val3'
                 ].inject({}) do |ret, x|
-          ret["rules.%d.#{x}" % n] =  send(x.to_sym)
+          ret["rules.#{n}.#{x}"] =  send(x.to_sym)
+          ret
         end
-        query['rules.%d.security_group_rule_name' % n] = name
+        query["rules.#{n}.security_group_rule_name"] = name
         query
       end
     end

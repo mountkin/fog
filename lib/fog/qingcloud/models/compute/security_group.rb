@@ -23,6 +23,17 @@ module Fog
           service.security_group_rules.new(attrs).save
         end
 
+        def add_rules(rules, auto_apply = true)                          
+          requires :id                                                   
+          args = {}                                                      
+          rules.each_with_index { |r, i|                                 
+            args.merge! service.security_group_rules.new(r).to_query(i + 1)         
+          }                                                              
+          service.add_security_group_rules(id, args)                     
+          service.apply_security_group(id) if auto_apply                 
+          true
+        end
+
         def ingress_rules
           requires :id
           rules(:ingress)
@@ -35,6 +46,7 @@ module Fog
 
         def rules(direction = nil)
           requires :id
+          direction = [:egress, :ingress].index(direction)
           service.security_group_rules.all('group-id' => id, 'direction' => direction)
         end
 

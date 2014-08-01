@@ -112,7 +112,7 @@ module Fog
           requires :id
           json = service.describe_router_statics(id, rule_ids, type).body['router_static_set']
           json.inject([]) do |ret, o|
-            ret << Fog::Compute::QingCloud::RouterRule.convert_type(o['static_type']).new(o)
+            ret << RouterRule.convert_type(o['static_type']).new(o)
           end
         end
         alias_method :statics, :rules
@@ -122,16 +122,49 @@ module Fog
         end
         alias_method :get_static, :get_rule
 
-        def add_rules(rules)
+        def add_rules(rules, auto_apply = true)
           requires :id
-          service.add_router_statics(id, Fog::Compute::QingCloud::RouterRule.to_query([*rules]))
-          service.update_routers(id)
+          service.add_router_statics(id, RouterRule.to_query([*rules]))
+          service.update_routers(id) if auto_apply
           wait_for {ready?}
           true
         end
         alias_method :add_rule, :add_rules
         alias_method :add_statics, :add_rules
         alias_method :add_static, :add_rules
+
+        def add_port_forward_rule(src_port, dst_ip, dst_port, protocol, auto_apply = true)
+          rule = PortForwardRule.new(
+            src_port: src_port,
+            dst_ip: dst_ip,
+            dst_port: dst_port,
+            protocol: protocol
+          )
+          add_rules(rule, auto_apply)
+        end
+
+        def add_vpn_rule(type, port, protocol, cidr, auto_apply = true)
+          rule = VPNRule.new(
+            vpn_type: type,
+            vpn_port: port,
+            vpn_protocol: protocol,
+            vpn_cidr_block: cidr
+          )
+          add_rules(rule, auto_apply)
+        end
+
+        def add_dhcp_rule(server_id, dhcp_options, auto_apply = true)
+          rule = DHCPRule.new(
+            server_id: server_id,
+            dhcp_options: dhcp_options
+          )
+          add_rules(rule, auto_apply)
+        end
+
+        def add_gre_rule(gre_options, auto_apply = true)
+          rule = GRERule.new(gre_options: gre_options)
+          add_rules(rule, auto_apply)
+        end
 
         def delete_rules(rule_id)
           requires :id
