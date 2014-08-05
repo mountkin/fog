@@ -46,7 +46,6 @@ module Fog
 
         def rules(direction = nil)
           requires :id
-          direction = [:egress, :ingress].index(direction)
           service.security_group_rules.all('group-id' => id, 'direction' => direction)
         end
 
