@@ -79,9 +79,10 @@ module Fog
           status == 'running'
         end
 
-        def reboot
+        def reboot(wait = false)
           requires :id
           service.reboot_instances(id)
+          wait_for { status == 'running' } if wait
           true
         end
 
@@ -173,15 +174,17 @@ module Fog
           Fog::SSH.new(ssh_ip_address, username, credentials).run(commands)
         end
 
-        def start
+        def start(wait = false)
           requires :id
           service.start_instances(id)
+          wait_for { status == 'running' } if wait
           true
         end
 
-        def stop(force = false)
+        def stop(wait = false, force = false)
           requires :id
           service.stop_instances(id, force)
+          wait_for { status == 'stopped' } if wait
           true
         end
 
