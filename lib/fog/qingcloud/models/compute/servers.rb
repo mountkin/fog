@@ -27,6 +27,7 @@ module Fog
           load(data.map do |x| 
               x['vxnet_ids'] = x['vxnets'].map{|v| v['vxnet_id']}
               x['image_id'] = x['image']['image_id']
+              x['image_name'] = x['image']['image_name']
               x
             end
           )

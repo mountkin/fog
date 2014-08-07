@@ -14,6 +14,7 @@ module Fog
         attribute :description
         attribute :flavor_id,    :aliases => 'instance_type'
         attribute :image_id
+        attribute :image_name
         attribute :memory_current
         attribute :status
         attribute :vxnet_ids
