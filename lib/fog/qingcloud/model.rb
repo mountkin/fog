@@ -34,6 +34,12 @@ module Fog
         wait_policy = lambda { |retries| retries < 8 ? 9 - retries : 1 }
         super(Fog::QingCloud.wait_timeout, wait_policy, &block)
       end
+      
+      def changing?
+        respond_to?(:transition_status) &&
+          transition_status && !transition_status.empty?
+      end
+
     end
   end
 end

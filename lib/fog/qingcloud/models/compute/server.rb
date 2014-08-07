@@ -79,10 +79,15 @@ module Fog
           status == 'running'
         end
 
+        def changing?
+          respond_to?(:transition_status) &&
+            transition_status && !transition_status.empty?
+        end
+
         def reboot(wait = false)
           requires :id
           service.reboot_instances(id)
-          wait_for { status == 'running' } if wait
+          wait_for { status == 'running' and !changing? } if wait
           true
         end
 
@@ -177,14 +182,14 @@ module Fog
         def start(wait = false)
           requires :id
           service.start_instances(id)
-          wait_for { status == 'running' } if wait
+          wait_for { status == 'running' and !changing? } if wait
           true
         end
 
         def stop(wait = false, force = false)
           requires :id
           service.stop_instances(id, force)
-          wait_for { status == 'stopped' } if wait
+          wait_for { status == 'stopped' and !changing? } if wait
           true
         end
 
